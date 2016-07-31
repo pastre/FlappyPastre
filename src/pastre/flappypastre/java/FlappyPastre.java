@@ -39,9 +39,9 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 	private boolean gameOver, started;
 	private Random rand;
 	static AudioClip point;
-	
+
 	int county = 0, highscore, dePointId;
-	
+
 	private String pointSoundPath = "/pastre/flappypastre/res/point.au";
 	private String deathSoundPath = "/pastre/flappypastre/res/death.au";
 	private String jumpSoundPath = "/pastre/flappypastre/res/jump.AU";
@@ -49,10 +49,10 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 	private String padoDeathSoundPath = "/pastre/flappypastre/res/padoDeath.au";
 	private String dePointSoundPath = "/pastre/flappypastre/res/dePoint0.au";
 	private String dePointSoundPath1 = "/pastre/flappypastre/res/dePoint1.au";
-	private String dePointSoundPath2 = "2";
+	private String dePointSoundPath2 = "/pastre/flappypastre/res/dePoint2.au";
 	private String deDeathSoundPath = "/pastre/flappypastre/res/deDeath.au";
 
-	 boolean isDefaultBird, isLeoBird, isPadoBird, isEsbeltoBird, isRodriBird, isCaiqueBird, isFloresBird, isDuBird,
+	boolean isDefaultBird, isLeoBird, isPadoBird, isEsbeltoBird, isRodriBird, isCaiqueBird, isFloresBird, isDuBird,
 			isPacheBird, isJuBird;
 
 	ImageIcon birdIcon1 = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/birdIcon.png"));
@@ -64,14 +64,14 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 	ImageIcon caiqueBirdIcon = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/caiqueBird.png"));
 	ImageIcon rodriBirdIcon = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/rodriBird.png"));
 	ImageIcon floresBirdIcon = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/floresBird.png"));
-	
+
 	ImageIcon tubeBody = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/tubeBody.png"));
 	ImageIcon tubeTop = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/tubeTop.png"));
 	ImageIcon bg = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/bg.png"));
 	ImageIcon floor = new ImageIcon(getClass().getResource("/pastre/flappypastre/res/floor.png"));
 	List<Character> inputs = new ArrayList<Character>();
 
-	//Construtor da classe
+	// Construtor da classe
 	public FlappyPastre() {
 		JFrame jframe = new JFrame();
 		Timer timer = new Timer(20, this);
@@ -99,7 +99,7 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 		timer.start();
 	}
 
-	//Adiciona o tubo
+	// Adiciona o tubo
 	public void addColumn(boolean start) {
 		int space = 300;
 		int width = 70;
@@ -115,15 +115,15 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 		}
 	}
 
-	//Parte grafica da coluna
+	// Parte grafica da coluna
 	public void paintColumn(Graphics g, Rectangle column) {
 		Color c = new Color(0, 0, 0, 100);
 		g.setColor(c);
 	}
 
-	//Pula
+	// Pula
 	public void jump() {
-		//Checa se precisa comecar um jogo novo
+		// Checa se precisa comecar um jogo novo
 		if (gameOver) {
 			bird = new Rectangle(WIDTH / 2 - 10, HEIGHT / 2 - 10, 40, 35);
 			columns.clear();
@@ -136,7 +136,7 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 			gameOver = false;
 		}
 
-		//Logica para comecar um novo jogo
+		// Logica para comecar um novo jogo
 		if (!started) {
 			started = true;
 		} else if (!gameOver) {
@@ -147,10 +147,11 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 			yMotion -= 12;
 		}
 		playSound(jumpSoundPath, false);
-		
-		//Logica para salvar o high score
-		//TODO: Guardar o valor em algum lugar, assim mesmo quando a janela for fechada
-		//o highscore continue o mesmo
+
+		// Logica para salvar o high score
+		// TODO: Guardar o valor em algum lugar, assim mesmo quando a janela for
+		// fechada
+		// o highscore continue o mesmo
 		if (score > highscore) {
 			highscore = score;
 		}
@@ -187,6 +188,7 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 
 			bird.y += yMotion;
 
+			// Checa se passou do tubo
 			for (Rectangle column : columns) {
 				if (column.y == 0 && bird.x + bird.width / 2 > column.x + column.width / 2 - 10
 						&& bird.x + bird.width / 2 < column.x + column.width / 2 + 10) {
@@ -195,27 +197,43 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 					i++;
 					if (i != 0 && !gameOver) {
 						if (isPadoBird) {
-							playSound(padoPointSoundPath, false);
-							i=0;
-						}else if(isEsbeltoBird){
-							playDeSound();
+							playSound(padoPointSoundPath, true);
 							i = 0;
-						}else { 
+						} else if (isEsbeltoBird) {
+							switch (dePointId) {
+							case 0:
+								playSound(dePointSoundPath, true);
+								dePointId = 1;
+								break;
+							case 1:
+								playSound(dePointSoundPath1, true);
+								dePointId = 2;
+								break;
+							case 2:
+								playSound(dePointSoundPath2, true);
+								dePointId = 0;
+								break;
+							}
+							System.out.println("dePpoint = " + dePointId);
+							i = 0;
+						} else {
 							playSound(pointSoundPath, true);
 							i = 0;
 						}
+						
 					}
+					break;
 				}
 				if (column.intersects(bird)) {
 					if (county == 0) {
 						if (isPadoBird) {
 							playSound(padoDeathSoundPath, false);
 							county++;
-						}else if(isEsbeltoBird){
+						} else if (isEsbeltoBird) {
 							playSound(deDeathSoundPath, false);
 							county++;
 						}
-						
+
 						else {
 							playSound(deathSoundPath, false);
 							county++;
@@ -289,18 +307,17 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 		} else if (isJuBird) {
 			setBools(isJuBird);
 			juBirdIcon.paintIcon(this, g, bird.x, bird.y);
-		}else if(isCaiqueBird){
+		} else if (isCaiqueBird) {
 			setBools(isCaiqueBird);
 			caiqueBirdIcon.paintIcon(this, g, bird.x, bird.y);
-		}else if(isRodriBird){
+		} else if (isRodriBird) {
 			setBools(isRodriBird);
 			rodriBirdIcon.paintIcon(this, g, bird.x, bird.y);
-		}else if(isFloresBird){
+		} else if (isFloresBird) {
 			setBools(isFloresBird);
 			floresBirdIcon.paintIcon(this, g, bird.x, bird.y);
 		}
-		
-		
+
 		else {
 			setBools(isDefaultBird);
 			birdIcon1.paintIcon(this, g, bird.x, bird.y);
@@ -490,20 +507,9 @@ public class FlappyPastre extends JPanel implements ActionListener, MouseListene
 			ex.printStackTrace();
 		}
 	}
-	
-	private void playDeSound(){		
-		if(dePointId == 0){
-			playSound(dePointSoundPath, false);
-			dePointId = 1;
-		}else if(dePointId == 1){
-			playSound(dePointSoundPath1, false);
-			dePointId = 2;
-		}else if(dePointId == 2){
-			playSound(dePointSoundPath2, false);
-			dePointId = 0;
-		}
-		
-		}
+
+	private void playDeSound() {
+	}
 
 	private void gameOverScreen(Graphics g) {
 		// todooooooo
